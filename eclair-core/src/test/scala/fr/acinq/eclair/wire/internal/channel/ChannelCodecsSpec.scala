@@ -88,7 +88,7 @@ class ChannelCodecsSpec extends AnyFunSuite {
     assert(bin_old.startsWith(hex"000001"))
     // let's decode the old data (this will use the old codec that provides default values for new fields)
     val data_new = channelDataCodec.decode(bin_old.toBitVector).require.value
-    assert(data_new.asInstanceOf[DATA_WAIT_FOR_FUNDING_CONFIRMED].fundingTx == None)
+    assert(data_new.asInstanceOf[DATA_WAIT_FOR_FUNDING_CONFIRMED].fundingTx.isEmpty)
     assert(TimestampSecond.now().toLong - data_new.asInstanceOf[DATA_WAIT_FOR_FUNDING_CONFIRMED].waitingSince.toLong < 3600) // we just set this to current time
     // and re-encode it with the new codec
     val bin_new = ByteVector(channelDataCodec.encode(data_new).require.toByteVector.toArray)
@@ -214,9 +214,9 @@ class ChannelCodecsSpec extends AnyFunSuite {
 
     val negotiating = channelDataCodec.decode(dataNegotiating.bits).require.value.asInstanceOf[DATA_NEGOTIATING]
     assert(negotiating.bestUnpublishedClosingTx_opt.nonEmpty)
-    negotiating.bestUnpublishedClosingTx_opt.foreach(tx => assert(tx.toLocalOutput == None))
+    negotiating.bestUnpublishedClosingTx_opt.foreach(tx => assert(tx.toLocalOutput.isEmpty))
     assert(negotiating.closingTxProposed.flatten.nonEmpty)
-    negotiating.closingTxProposed.flatten.foreach(tx => assert(tx.unsignedTx.toLocalOutput == None))
+    negotiating.closingTxProposed.flatten.foreach(tx => assert(tx.unsignedTx.toLocalOutput.isEmpty))
 
     val normal = channelDataCodec.decode(dataNormal.bits).require.value.asInstanceOf[DATA_NORMAL]
     assert(normal.commitments.localCommit.htlcTxsAndRemoteSigs.nonEmpty)
