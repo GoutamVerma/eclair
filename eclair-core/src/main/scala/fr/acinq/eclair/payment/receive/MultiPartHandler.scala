@@ -164,7 +164,7 @@ class MultiPartHandler(nodeParams: NodeParams, register: ActorRef, db: IncomingP
         })
         if (db.receiveIncomingPayment(paymentHash, received.amount, received.timestamp)) {
           parts.collect {
-            case p: MultiPartPaymentFSM.HtlcPart => PendingCommandsDb.safeSend(register, nodeParams.db.pendingCommands, p.htlc.channelId, CMD_FULFILL_HTLC(p.htlc.id, preimage, commit = true))
+            case p: MultiPartPaymentFSM.HtlcPart => log.warning(s"c:${p.htlc.channelId} hodling htlc #${p.htlc.id} instead of releasing preimage")
           }
           postFulfill(received)
           ctx.system.eventStream.publish(received)
